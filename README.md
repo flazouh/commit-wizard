@@ -16,13 +16,13 @@ An AI-powered commit wizard that automatically generates commit messages, create
 ### Global Installation (Recommended)
 
 ```bash
-npm install -g commit-wizard
+npm install -g ai-git-wizard
 ```
 
 ### Local Installation
 
 ```bash
-npm install commit-wizard
+npm install ai-git-wizard
 ```
 
 ## Setup
@@ -30,7 +30,7 @@ npm install commit-wizard
 Before using the CLI, you need to configure your API keys:
 
 ```bash
-commit-wizard config setup
+ai-git-wizard config setup
 ```
 
 This will prompt you for:
@@ -58,7 +58,7 @@ This will prompt you for:
 Run the complete workflow (generates commits, creates branch, makes PR):
 
 ```bash
-commit-wizard workflow
+ai-git-wizard workflow
 ```
 
 ### Just Commit
@@ -66,36 +66,44 @@ commit-wizard workflow
 Generate AI commit messages and commit staged files:
 
 ```bash
-commit-wizard commit
+ai-git-wizard commit
+```
+
+### Commit and Push
+
+Generate commit messages and push to remote:
+
+```bash
+ai-git-wizard commit --push
 ```
 
 ### Specify Branch Name
 
 ```bash
-commit-wizard workflow -b feature/my-feature
+ai-git-wizard workflow -b feature/my-feature
 ```
 
 ### Skip PR Creation
 
 ```bash
-commit-wizard workflow --no-pr
+ai-git-wizard workflow --no-pr
 ```
 
 ### Configuration Management
 
 ```bash
 # Interactive setup
-commit-wizard config setup
+ai-git-wizard config setup
 
 # List all configuration
-commit-wizard config list
+ai-git-wizard config list
 
 # Set individual values
-commit-wizard config set openRouterApiKey YOUR_KEY
-commit-wizard config set githubToken YOUR_TOKEN
+ai-git-wizard config set openRouterApiKey YOUR_KEY
+ai-git-wizard config set githubToken YOUR_TOKEN
 
 # Get a specific value
-commit-wizard config get defaultModel
+ai-git-wizard config get defaultModel
 ```
 
 ## Workflow Steps
@@ -112,21 +120,28 @@ The complete workflow performs these steps:
 
 ## Configuration
 
-Configuration is stored in `~/.commit-wizard/config.json`
+Configuration is stored in `~/.ai-git-wizard/config.json`
 
 ### Available Settings
 
 - `openRouterApiKey`: Your OpenRouter API key (required)
 - `githubToken`: Your GitHub personal access token (required)
-- `defaultModel`: AI model to use (default: "anthropic/claude-3.5-sonnet")
+- `defaultModel`: AI model to use (default: "google/gemini-flash-2.5")
 - `maxConcurrency`: Max parallel API requests (default: 3)
 
 ### Supported AI Models
 
-- `anthropic/claude-3.5-sonnet` (Recommended)
-- `google/gemini-flash-1.5` (Fast)
-- `openai/gpt-4o-mini`
-- `openai/gpt-4o`
+Any model available on OpenRouter is supported! Some popular options include:
+
+- `google/gemini-flash-2.5` (Recommended - Fast & Reliable)
+- `anthropic/claude-3.5-sonnet` (High Quality)
+- `google/gemini-flash-1.5` (Very Fast)
+- `openai/gpt-4o-mini` (Good Balance)
+- `openai/gpt-4o` (Highest Quality)
+- `meta-llama/llama-3.1-8b-instruct` (Open Source)
+- `mistralai/mistral-7b-instruct` (Open Source)
+
+You can browse all available models at [openrouter.ai/models](https://openrouter.ai/models)
 
 ## Examples
 
@@ -138,19 +153,22 @@ git add src/components/Button.tsx
 git add src/utils/helpers.ts
 
 # Run AI workflow
-commit-wizard workflow
+ai-git-wizard workflow
 
 ### Advanced Usage
 
 ```bash
 # Specify branch and base branch
-commit-wizard workflow --branch feat/authentication --base-branch develop
+ai-git-wizard workflow --branch feat/authentication --base-branch develop
 
 # Just generate commits without PR
-commit-wizard workflow --no-pr
+ai-git-wizard workflow --no-pr
 
 # Only commit (no branch creation or PR)
-commit-wizard commit
+ai-git-wizard commit
+
+# Commit and push to remote
+ai-git-wizard commit --push
 ```
 
 ## Requirements
