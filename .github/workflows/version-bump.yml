@@ -1,0 +1,68 @@
+name: Version Bump
+
+on:
+  workflow_dispatch: # Manual trigger
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install
+        
+      - name: Run tests
+        run: bun run test
+        
+      - name: Build project
+        run: bun run build
+        
+      - name: Check if version should be bumped
+        id: check-version
+        run: |
+          # Check if there are any changes in src/ directory since last tag
+          if git describe --tags --abbrev=0 2>/dev/null; then
+            LAST_TAG=$(git describe --tags --abbrev=0)
+            CHANGES=$(git diff --name-only $LAST_TAG..HEAD src/ | wc -l)
+            if [ $CHANGES -gt 0 ]; then
+              echo "should_bump=true" >> $GITHUB_OUTPUT
+            else
+              echo "should_bump=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "should_bump=true" >> $GITHUB_OUTPUT
+          fi
+        
+      - name: Bump version
+        if: steps.check-version.outputs.should_bump == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          npm version patch -m "Bump version to %s [skip ci]"
+          git push --follow-tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        
+      - name: Comment on PR if no bump needed
+        if: steps.check-version.outputs.should_bump == 'false'
+        run: |
+          echo "No version bump needed - no changes detected in src/ directory since last tag"
