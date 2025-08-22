@@ -22,7 +22,7 @@ class AIService {
 		const apiKey = this.config.openRouterApiKey;
 		if (!apiKey) {
 			throw new Error(
-				'OpenRouter API key not configured. Use "commit-wizard config set openRouterApiKey YOUR_KEY"',
+				'OpenRouter API key not configured. Use "ai-git-wizard config set openRouterApiKey YOUR_KEY"',
 			);
 		}
 
@@ -33,7 +33,7 @@ class AIService {
 				headers: {
 					Authorization: `Bearer ${apiKey}`,
 					"Content-Type": "application/json",
-					"HTTP-Referer": "https://github.com/fluentai-pro/commit-wizard",
+					"HTTP-Referer": "https://github.com/fluentai-pro/ai-git-wizard",
 					"X-Title": "AI Git CLI",
 				},
 				body: JSON.stringify(request),
@@ -141,7 +141,7 @@ Guidelines:
 Return only the branch name, no explanation.`;
 
 		const request: OpenRouterRequest = {
-			model: this.config.defaultModel || "google/gemini-flash-2.5",
+			model: this.config.defaultModel || "google/gemini-flash-1.5",
 			messages: [
 				{
 					role: "system",
@@ -190,7 +190,7 @@ Generate a PR description with:
 Format as markdown. Be professional but concise.`;
 
 		const request: OpenRouterRequest = {
-			model: this.config.defaultModel || "google/gemini-flash-2.5",
+			model: this.config.defaultModel || "google/gemini-flash-1.5",
 			messages: [
 				{
 					role: "system",
