@@ -38,7 +38,7 @@ class GitHubService {
 					Authorization: `token ${this.token}`,
 					Accept: "application/vnd.github.v3+json",
 					"Content-Type": "application/json",
-					"User-Agent": "commit-wizard",
+					"User-Agent": "ai-git-wizard",
 				},
 				body: JSON.stringify(body),
 			});
@@ -70,7 +70,7 @@ class GitHubService {
 				headers: {
 					Authorization: `token ${this.token}`,
 					Accept: "application/vnd.github.v3+json",
-					"User-Agent": "commit-wizard",
+					"User-Agent": "ai-git-wizard",
 				},
 			});
 
@@ -109,7 +109,7 @@ class GitHubService {
 					Authorization: `token ${this.token}`,
 					Accept: "application/vnd.github.v3+json",
 					"Content-Type": "application/json",
-					"User-Agent": "commit-wizard",
+					"User-Agent": "ai-git-wizard",
 				},
 				body: JSON.stringify(body),
 			});
@@ -140,7 +140,7 @@ class GitHubService {
 				headers: {
 					Authorization: `token ${this.token}`,
 					Accept: "application/vnd.github.v3+json",
-					"User-Agent": "commit-wizard",
+					"User-Agent": "ai-git-wizard",
 				},
 			});
 
@@ -169,7 +169,7 @@ class GitHubService {
 					headers: {
 						Authorization: `token ${this.token}`,
 						Accept: "application/vnd.github.v3+json",
-						"User-Agent": "commit-wizard",
+						"User-Agent": "ai-git-wizard",
 					},
 				},
 			);
