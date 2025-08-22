@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "bun run src/cli.ts",
-    "test": "vitest",
+    "test": "vitest run",
     "lint": "biome check src",
     "lint:fix": "biome check --write src",
     "format": "biome format --write src",
