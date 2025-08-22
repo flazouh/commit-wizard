@@ -9,7 +9,7 @@ class ConfigManager {
 	private configFile: string;
 
 	constructor() {
-		this.configDir = path.join(os.homedir(), ".commit-wizard");
+		this.configDir = path.join(os.homedir(), ".ai-git-wizard");
 		this.configFile = path.join(this.configDir, "config.json");
 		this.ensureConfigDir();
 	}
@@ -55,7 +55,7 @@ class ConfigManager {
 
 		if (Object.keys(config).length === 0) {
 			console.log(
-				'  No configuration found. Use "commit-wizard config set" to configure.',
+				'  No configuration found. Use "ai-git-wizard config set" to configure.',
 			);
 			return;
 		}
@@ -129,7 +129,7 @@ class ConfigManager {
 
 		// Apply defaults
 		const workingConfig: Config = {
-			defaultModel: "anthropic/claude-3.5-sonnet",
+			defaultModel: "google/gemini-flash-1.5",
 			maxConcurrency: 3,
 			...config,
 		};
