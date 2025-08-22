@@ -18,7 +18,7 @@ export async function handleWorkflow(options: WorkflowOptions): Promise<void> {
 	if (!isValid) {
 		console.error(chalk.red.bold("❌ Configuration missing!"));
 		console.error(`Missing: ${missing.join(", ")}`);
-		console.log("\nRun: commit-wizard config setup");
+		console.log("\nRun: ai-git-wizard config setup");
 		process.exit(1);
 	}
 
@@ -177,7 +177,7 @@ export async function handleCommit(options: CommitOptions = {}): Promise<void> {
 	if (!isValid) {
 		console.error(chalk.red.bold("❌ Configuration missing!"));
 		console.error(`Missing: ${missing.join(", ")}`);
-		console.log("\nRun: commit-wizard config setup");
+		console.log("\nRun: ai-git-wizard config setup");
 		process.exit(1);
 	}
 
