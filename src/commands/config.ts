@@ -109,7 +109,7 @@ async function handleConfigGet(
 
 	if (!key) {
 		console.error("Please specify a configuration key to get");
-		console.log("Example: commit-wizard config get openRouterApiKey");
+		console.log("Example: ai-git-wizard config get openRouterApiKey");
 		return;
 	}
 
@@ -166,15 +166,15 @@ async function handleConfigSetup(configManager: ConfigManager): Promise<void> {
 			message: "🧠 Choose your preferred AI model:",
 			choices: [
 				{
-					name: "Gemini Flash 2.5 (Recommended)",
-					value: "google/gemini-flash-2.5",
+					name: "Gemini Flash 1.5 (Recommended - Fast & Cost-effective)",
+					value: "google/gemini-flash-1.5",
 				},
 				{ name: "Claude 3.5 Sonnet", value: "anthropic/claude-3.5-sonnet" },
-				{ name: "Gemini Flash 1.5 (Fast)", value: "google/gemini-flash-1.5" },
 				{ name: "GPT-4o Mini", value: "openai/gpt-4o-mini" },
 				{ name: "GPT-4o", value: "openai/gpt-4o" },
+				{ name: "Gemini Pro 1.5", value: "google/gemini-pro-1.5" },
 			],
-			default: "google/gemini-flash-2.5",
+			default: "google/gemini-flash-1.5",
 		},
 	]);
 
@@ -199,6 +199,6 @@ async function handleConfigSetup(configManager: ConfigManager): Promise<void> {
 	configManager.setConfig("maxConcurrency", maxConcurrency);
 
 	console.log(chalk.green.bold("\n✅ Configuration saved successfully!"));
-			console.log("\nYou can now use commit-wizard to automate your workflow.");
-		console.log("Try: commit-wizard commit");
+			console.log("\nYou can now use ai-git-wizard to automate your workflow.");
+console.log("Try: ai-git-wizard commit");
 }
