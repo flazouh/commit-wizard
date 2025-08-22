@@ -18,7 +18,7 @@ import { handleCommit, handleWorkflow } from "./commands/workflow.js";
 
 // Define the CLI
 yargs(hideBin(process.argv))
-	.scriptName("commit-wizard")
+	.scriptName("ai-git-wizard")
 	.usage("$0 <cmd> [args]")
 	.version()
 	.command({
