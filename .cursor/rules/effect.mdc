@@ -1,0 +1,417 @@
+================================================
+FILE: README.md
+================================================
+# Effect: Beginners Complete Getting Started
+
+This repository contains all the code for the course [`Effect: Beginners Complete Getting Started`](https://www.typeonce.dev/course/effect-beginners-complete-getting-started).
+
+The app is implemented using typescript. You can get started by forking/cloning the repository and installing the dependencies:
+
+```sh
+pnpm install
+```
+
+The project follows the implementation of the app in the course:
+- Entry point inside [index.ts](./src/index.ts)
+- All *Pascal Case* files in [src](./src/) are effect services
+- Testing inside [test](./test/)
+- [[+1]](./src/+1/) contains topic explained inside extra lessons in the course
+
+***
+
+[`effect`](https://effect.website/) is the missing standard library for TypeScript. `effect` provides everything that you need to **build type-safe production typescript applications**.
+
+## Course content
+
+This course will guide you from 0 knowledge of `effect` to build your first API with `Runtime`, `Layer`, `Config` and more. It shows you *how to implement a single API request* using `effect`.
+
+This may sound simple, but in reality you need to account for a lot of configurations and possible errors. `effect` makes everything type-safe, maintainable, testable:
+- Error handling
+- Configuration (environmental variables)
+- Mocking and testing (dependency injection)
+- Organizing and composing services
+
+### How the course is organized
+
+The course is organized in small self-contained lessons. Each lesson introduces 1 single new concept.
+
+We will explore why using plain `fetch` and `Promise` is not enough. For each problem we explore the solution offered by `effect`, how it works, why it's needed, and how it integrates with the other modules to build a complete app.
+
+## Course outline
+
+These are some of the concepts you will learn:
+- Creating and running effects (`Effect` type)
+- Type safe error handling
+- How to use `pipe` and `gen` to compose effects
+- How to use `@effect/schema` to parse request responses
+- Manage environmental variables with the `Config` module
+- Testing and mocking using dependency injection
+- Composing services using `Context` and `Layer`
+- How to build your custom runtime using `ManagedRuntime`
+
+We will learn these step by step. Every new module or API will be introduced only when required, specifically when implementing a missing feature of solving a problem with the app.
+
+***
+
+## Prerequisites
+The only prerequisite is knowing typescript.
+
+This does not require being advanced in the language. Nonetheless, the course assumes you know *what types are and how they work*.
+
+Here are some of the typescript concepts we are going to use:
+- Type inference
+- `typeof`
+- `never`
+- `interface`/`type`
+- `readonly`
+- `function*`/`yield*`
+
+We will briefly review some of these during the course to understand how and why they are used.
+
+### Good to have
+Some patterns and APIs in `effect` derive from functional programming principles.
+
+Those are **not** required, but they may help you better understand some APIs used in `effect`:
+- Piping: `pipe` function in `effect`
+- Pure functions
+- Function composition
+- High-order functions
+- Pattern matching
+- Dependency injection
+
+> We are going to learn more about some of these principles during the course
+
+
+================================================
+FILE: package.json
+================================================
+{
+  "name": "effect-getting-started-course",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "Sandro Maglione",
+  "license": "MIT",
+  "scripts": {
+    "dev": "BASE_URL=https://pokeapi.co tsx src/index.ts",
+    "typecheck": "tsc",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "msw": "^2.3.1",
+    "tsx": "^4.16.2",
+    "typescript": "^5.8.2",
+    "vitest": "^2.0.2"
+  },
+  "dependencies": {
+    "@effect/platform": "^0.79.1",
+    "effect": "^3.13.10"
+  }
+}
+
+
+
+================================================
+FILE: tsconfig.json
+================================================
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "module": "preserve",
+    "noEmit": true,
+    "lib": ["es2022"]
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+
+
+
+================================================
+FILE: src/BuildPokeApiUrl.ts
+================================================
+import { Effect } from "effect";
+import { PokeApiUrl } from "./PokeApiUrl";
+
+export class BuildPokeApiUrl extends Effect.Service<BuildPokeApiUrl>()(
+  "BuildPokeApiUrl",
+  {
+    dependencies: [PokeApiUrl.Live],
+    effect: Effect.gen(function* () {
+      const pokeApiUrl = yield* PokeApiUrl;
+      return ({ name }: { name: string }) => `${pokeApiUrl}/${name}`;
+    }),
+  }
+) {}
+
+
+
+================================================
+FILE: src/errors.ts
+================================================
+import { Data } from "effect";
+
+export class FetchError extends Data.TaggedError("FetchError")<{}> {}
+export class JsonError extends Data.TaggedError("JsonError")<{}> {}
+
+
+
+================================================
+FILE: src/index.test.ts
+================================================
+import { ConfigProvider, Effect, Layer, ManagedRuntime } from "effect";
+import { afterAll, afterEach, beforeAll, expect, it } from "vitest";
+import { server } from "../test/node";
+import { PokeApi } from "./PokeApi";
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+const TestConfigProvider = ConfigProvider.fromMap(
+  new Map([["BASE_URL", "http://localhost:3000"]])
+);
+
+const ConfigProviderLayer = Layer.setConfigProvider(TestConfigProvider);
+const MainLayer = PokeApi.Default.pipe(Layer.provide(ConfigProviderLayer));
+
+const TestingRuntime = ManagedRuntime.make(MainLayer);
+
+const program = Effect.gen(function* () {
+  const pokeApi = yield* PokeApi;
+  return yield* pokeApi.getPokemon;
+});
+
+it("returns a valid pokemon", async () => {
+  const response = await TestingRuntime.runPromise(program);
+  expect(response).toEqual({
+    id: 1,
+    height: 10,
+    weight: 10,
+    order: 1,
+    name: "myname",
+  });
+});
+
+
+
+================================================
+FILE: src/index.ts
+================================================
+import { Effect, Layer, ManagedRuntime } from "effect";
+import { PokeApi } from "./PokeApi";
+
+const MainLayer = Layer.mergeAll(PokeApi.Default);
+
+const PokemonRuntime = ManagedRuntime.make(MainLayer);
+
+const program = Effect.gen(function* () {
+  const pokeApi = yield* PokeApi;
+  return yield* pokeApi.getPokemon;
+});
+
+const main = program.pipe(
+  Effect.catchTags({
+    FetchError: () => Effect.succeed("Fetch error"),
+    JsonError: () => Effect.succeed("Json error"),
+    ParseError: () => Effect.succeed("Parse error"),
+  })
+);
+
+PokemonRuntime.runPromise(main).then(console.log);
+
+
+
+================================================
+FILE: src/PokeApi.ts
+================================================
+import { Effect, Schema } from "effect";
+import { BuildPokeApiUrl } from "./BuildPokeApiUrl";
+import { FetchError, JsonError } from "./errors";
+import { PokemonCollection } from "./PokemonCollection";
+import { Pokemon } from "./schemas";
+
+export class PokeApi extends Effect.Service<PokeApi>()("PokeApi", {
+  dependencies: [PokemonCollection.Default, BuildPokeApiUrl.Default],
+  effect: Effect.gen(function* () {
+    const pokemonCollection = yield* PokemonCollection;
+    const buildPokeApiUrl = yield* BuildPokeApiUrl;
+
+    return {
+      getPokemon: Effect.gen(function* () {
+        const requestUrl = buildPokeApiUrl({ name: pokemonCollection[0] });
+
+        const response = yield* Effect.tryPromise({
+          try: () => fetch(requestUrl),
+          catch: () => new FetchError(),
+        });
+
+        if (!response.ok) {
+          return yield* new FetchError();
+        }
+
+        const json = yield* Effect.tryPromise({
+          try: () => response.json(),
+          catch: () => new JsonError(),
+        });
+
+        return yield* Schema.decodeUnknown(Pokemon)(json);
+      }),
+    };
+  }),
+}) {}
+
+
+
+================================================
+FILE: src/PokeApiUrl.ts
+================================================
+import { Config, Context, Effect, Layer } from "effect";
+
+export class PokeApiUrl extends Context.Tag("PokeApiUrl")<
+  PokeApiUrl,
+  string
+>() {
+  static readonly Live = Layer.effect(
+    this,
+    Effect.gen(function* () {
+      const baseUrl = yield* Config.string("BASE_URL");
+      return `${baseUrl}/api/v2/pokemon`;
+    })
+  );
+}
+
+
+
+================================================
+FILE: src/PokemonCollection.ts
+================================================
+import { Effect } from "effect";
+
+export class PokemonCollection extends Effect.Service<PokemonCollection>()(
+  "PokemonCollection",
+  { succeed: ["staryu", "perrserker", "flaaffy"] }
+) {}
+
+
+
+================================================
+FILE: src/schemas.ts
+================================================
+import { Schema } from "effect";
+
+export class Pokemon extends Schema.Class<Pokemon>("Pokemon")({
+  id: Schema.Number,
+  order: Schema.Number,
+  name: Schema.String,
+  height: Schema.Number,
+  weight: Schema.Number,
+}) {}
+
+
+
+================================================
+FILE: src/+1/encoding.ts
+================================================
+import { Schema } from "effect";
+
+const Author = Schema.Struct({
+  name: Schema.String,
+  age: Schema.NumberFromString,
+});
+
+const authorDecoded = Schema.decodeSync(Author)({ age: "26", name: "Sandro" });
+const authorEncoded = Schema.encodeSync(Author)(authorDecoded);
+
+
+
+================================================
+FILE: src/+1/logging.ts
+================================================
+import { Effect, Logger } from "effect";
+
+const customLogger = Logger.make(({ logLevel, message }) => {
+  globalThis.console.log(`[${logLevel.label}] ${message}`);
+});
+
+const loggerLayer = Logger.add(customLogger);
+
+const main = Effect.logInfo("Hello world").pipe(Effect.provide(loggerLayer));
+
+Effect.runSync(main);
+
+
+
+================================================
+FILE: src/+1/platform.ts
+================================================
+import {
+  FetchHttpClient,
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse,
+} from "@effect/platform";
+import { Effect, flow } from "effect";
+import { Pokemon } from "../schemas";
+
+export const main = Effect.gen(function* () {
+  const baseClient = yield* HttpClient.HttpClient;
+  const pokeApiClient = baseClient.pipe(
+    HttpClient.mapRequest(
+      flow(
+        HttpClientRequest.acceptJson,
+        HttpClientRequest.prependUrl("https://pokeapi.co/api/v2")
+      )
+    )
+  );
+
+  return yield* pokeApiClient.get("/pokemon/squirtle");
+}).pipe(
+  Effect.flatMap(HttpClientResponse.schemaBodyJson(Pokemon)),
+  Effect.scoped,
+  Effect.provide(FetchHttpClient.layer)
+);
+
+
+
+================================================
+FILE: test/handlers.ts
+================================================
+import { HttpResponse, http } from "msw";
+import type { Pokemon } from "../src/schemas";
+
+const mockPokemon: Pokemon = {
+  id: 1,
+  height: 10,
+  weight: 10,
+  order: 1,
+  name: "myname",
+};
+
+export const handlers = [
+  http.get("http://localhost:3000/api/v2/pokemon/*", () => {
+    return HttpResponse.json(mockPokemon);
+  }),
+];
+
+
+
+================================================
+FILE: test/node.ts
+================================================
+import { setupServer } from "msw/node";
+import { handlers } from "./handlers";
+
+export const server = setupServer(...handlers);
+
+
